@@ -1,0 +1,199 @@
+<!DOCTYPE aesl-source>
+<network>
+
+
+<!--list of global events-->
+<event size="1" name="b1"/>
+
+
+<!--list of constants-->
+
+
+<!--show keywords state-->
+<keywords flag="true"/>
+
+
+<!--node thymio-II-->
+<node nodeId="1" name="thymio-II">#Ne fonctionne pas sur le playground à cause de l'ambiant constant
+var vitesse1=137
+var vitesse2=279
+var vitesse3=433
+var vitesse
+var v
+var temps=0
+var debuttimer=0
+var debut=0
+var b0
+var b1
+var b2
+var fin1=0
+var fin2=0
+var angle=-1
+var comparateur=-1
+var distance=-1
+var intervalle1
+var intervalle2
+var intervalle3
+var intervalle4
+var decompte=-1
+var s=0
+var d=0
+var val
+var delta
+var g=800
+var seuil=10
+
+timer.period[0] = 1
+timer.period[1]=100
+
+motor.left.target=vitesse1
+motor.right.target=vitesse1
+	
+vitesse=motor.right.target
+
+if vitesse==137 then
+	v=9
+end
+if vitesse==279 then
+	v=18
+end
+if vitesse==433 then
+	v=27
+end
+
+intervalle1=(4050/v)*2
+intervalle2=((4050+2700)/v)*2
+intervalle3=((4050+2700*2)/v)*2
+intervalle4=((4050+2700*3)/v)*2
+
+
+onevent prox
+	if  fin2==0 then
+		val = prox.ground.delta[0]
+		if vitesse==433 then
+			delta = vitesse/20 
+		else
+			delta = vitesse/10 
+		end
+		when val &lt; g - seuil do
+			motor.left.target=vitesse + delta
+			motor.right.target=vitesse - delta
+		end
+		when val > g + seuil do
+			motor.left.target=vitesse - delta
+			motor.right.target=vitesse + delta
+		end
+	end
+	
+	
+	if prox.ground.ambiant[1] &lt; 2 and debut==0 and fin2==0 then
+			debut=1
+			debuttimer = 1
+			fin1=0
+			call leds.top(32,0,32)
+	end
+	
+	when temps>=intervalle1 do
+		if prox.ground.ambiant[1]&lt;2 then
+			b0=1
+		else
+			b0=0
+		end
+	end		
+	
+	when temps>=intervalle2 do
+		if prox.ground.ambiant[1]&lt;2 then
+			b1=1
+		else
+			b1=0
+		end
+	end	
+	
+	when temps>=intervalle3 do
+		if prox.ground.ambiant[1]&lt;2 then
+			b2=1
+		else
+			b2=0
+		end
+	end			
+		
+	if temps>=intervalle4 and fin1==0 then
+		fin1=1
+		debuttimer=0
+		temps=0
+		debut=0
+		
+		if distance==-1 then
+			distance=(b0*1+b1*2+b2*4)*10
+			call leds.top(32,32,0)
+		else
+			when fin2==0 do
+				motor.left.target=0
+				motor.right.target=0
+				angle=b0*1+b1*2+b2*4
+				fin2=1
+				call leds.top(0,32,32)
+			end
+		end
+		
+		b0=-1
+		b1=-1
+		b2=-1		
+	end
+
+if  fin2==1 then
+	when angle%2==0 do
+		s=-100
+		d=0
+	end
+	when angle%2==1 do
+		s=100
+		d=0
+	end
+	motor.left.target=-s
+	motor.right.target=s
+end
+
+if comparateur !=-1 and d>comparateur then
+	motor.left.target=-450
+	motor.right.target=-450
+	when motor.right.target==-450 do
+		decompte=((distance*10)/14)*100#-100s
+	end
+	if decompte==0 then
+		motor.left.target=0
+		motor.right.target=0
+	end
+end
+		
+onevent timer0
+	if debuttimer==1 then
+		temps++
+	end
+	if decompte !=-1 and decompte !=0 then
+		decompte--
+	end
+
+	
+onevent timer1
+	if (s!=0) then 
+		d++
+    end
+    if angle==0 or angle==7 then
+    	comparateur=44
+    end
+    if angle==1 or angle==2 then
+    	comparateur=34
+    end
+    if angle==3 or angle==4 then
+    	comparateur=22
+    end
+    if angle==5 or angle==6 then
+    	comparateur=15
+    end
+    if  (d>comparateur) then
+        s=0
+    end</node>
+
+
+</network>
