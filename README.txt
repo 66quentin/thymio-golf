@@ -1,4 +1,4 @@
-Projet réalisé par Guardia Quentin (qguardia66@gmail.com)
+Projet réalisé par Guardia Quentin (quentin.guardia@protonmail.com)
 
 Code s'exécutant sur  Aseba.
 
